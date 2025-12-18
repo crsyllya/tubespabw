@@ -1,0 +1,39 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+class Pengunjung extends Authenticatable
+{
+
+    use HasFactory;
+    protected $table = 'pengunjungs';
+    protected $fillable = [
+        'nama',
+        'email',
+        'password',
+        'is_active',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    // Tambahkan default value untuk is_active
+    protected $attributes = [
+        'is_active' => true,
+    ];
+
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
+    public function transaksis()
+    {
+        return $this->hasMany(Transaksi::class, 'pengunjung_id');
+    }
+}
