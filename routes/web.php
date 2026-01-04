@@ -50,8 +50,6 @@ Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('admin.
 Route::get('/events/verifikasi', [EventController::class, 'pending'])->name('admin.events.verifikasi');
 Route::post('/events/{id}/verify', [EventController::class, 'verify'])->name('admin.events.verify');
 Route::post('/events/{id}/reject', [EventController::class, 'reject'])->name('admin.events.reject');
-Route::get('/admin/events/verifikasi', [AdminEventController::class, 'verifikasi'])
-    ->name('admin.events.verifikasi');
 
 
      //manajemen transaksi
@@ -87,10 +85,6 @@ Route::get('/search', [EventController::class, 'search'])->name('event.search');
 Route::get('/wishlist', [WishlistController::class, 'wishlistPage'])->name('wishlist.page');
 Route::post('/wishlist/{event}', [WishlistController::class, 'store'])->name('wishlist.store');
 Route::delete('/wishlist/{wishlist}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
-Route::get('/buy/{id}', [EventController::class, 'buy'])->name('event.buy'); 
-Route::post('/buy/{id}', [EventController::class, 'processPurchase'])->name('event.buy.process');
-Route::get('/event/success', [EventController::class, 'success'])->name('success');
-Route::get('/ticket/{transactionId}', [EventController::class, 'showTicket'])->name('event.ticket');
 Route::get('/buy/{id}', [EventController::class, 'buy'])->name('event.buy'); 
 Route::post('/buy/{id}', [EventController::class, 'processPurchase'])->name('event.buy.process');
 Route::get('/event/success', [EventController::class, 'success'])->name('success');
