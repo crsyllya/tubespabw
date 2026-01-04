@@ -4,9 +4,8 @@ namespace App\Http\Controllers\Api\Penyelenggara;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use App\Models\Penyelenggara;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Penyelenggara;
 
 class PenyelenggaraAuthController extends Controller
 {
@@ -21,27 +20,35 @@ class PenyelenggaraAuthController extends Controller
 
         if (!$penyelenggara || !Hash::check($request->password, $penyelenggara->password)) {
             return response()->json([
+                'status' => false,
                 'message' => 'Email atau password salah'
             ], 401);
         }
 
         if (!$penyelenggara->is_active) {
             return response()->json([
+                'status' => false,
                 'message' => 'Akun penyelenggara dinonaktifkan'
             ], 403);
         }
 
+        // ✅ SANCTUM TOKEN
+        $token = $penyelenggara->createToken('penyelenggara-token')->plainTextToken;
+
         return response()->json([
+            'status' => true,
             'message' => 'Login penyelenggara berhasil',
+            'token' => $token,
             'data' => $penyelenggara
         ]);
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
-        Auth::guard('penyelenggara')->logout();
+        $request->user()->currentAccessToken()->delete();
 
         return response()->json([
+            'status' => true,
             'message' => 'Logout penyelenggara berhasil'
         ]);
     }

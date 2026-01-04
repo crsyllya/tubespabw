@@ -1,6 +1,15 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\Admin\AdminAuthController;
+use App\Http\Controllers\Api\Admin\ManageUserController;
+use App\Http\Controllers\Api\Admin\EventController as AdminEventController;
+use App\Http\Controllers\Api\Penyelenggara\EventController as EventController;
+use App\Http\Controllers\Api\Admin\AdminTransaksiController;
+use App\Http\Controllers\Api\Pengunjung\PengunjungAuthController;
+use App\Http\Controllers\Api\Penyelenggara\PenyelenggaraAuthController;
+use App\Http\Controllers\Api\Admin\FaqController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -14,52 +23,67 @@ Route::prefix('auth')->group(function () {
     Route::post('/logout', [\App\Http\Controllers\Api\AuthController::class, 'logout']);
 });
 
+
 /*
 |--------------------------------------------------------------------------
 | ADMIN API
 |--------------------------------------------------------------------------
 */
+/*
+|--------------------------------------------------------------------------
+| ADMIN AUTH (LOGIN)
+|--------------------------------------------------------------------------
+*/
+Route::post('/admin/login', [AdminAuthController::class, 'login']);
 
-Route::middleware('admin.api')->prefix('admin')->group(function () {
+Route::middleware(['auth:sanctum'])
+    ->prefix('admin')
+    ->group(function () {
 
-    Route::get('/dashboard', [\App\Http\Controllers\Api\Admin\AdminAuthController::class, 'dashboard']);
+        Route::get('/dashboard', [AdminAuthController::class, 'dashboard']);
+        Route::post('/logout', [AdminAuthController::class, 'logout']);
 
-    // Manajemen User
-    Route::get('/users', [\App\Http\Controllers\Api\Admin\ManageUserController::class, 'index']);
-    Route::delete('/users/{id}', [\App\Http\Controllers\Api\Admin\ManageUserController::class, 'destroy']);
-    Route::post('/users/{role}/{id}/toggle', [\App\Http\Controllers\Api\Admin\ManageUserController::class, 'toggleActive']);
+        // Manage User
+        Route::get('/users', [ManageUserController::class, 'index']);
+        Route::delete('/users/{id}', [ManageUserController::class, 'destroy']);
+        Route::post('/users/{role}/{id}/toggle', [ManageUserController::class, 'toggleActive']);
 
-    // Verifikasi Event
-    Route::get('/events/pending', [\App\Http\Controllers\Api\Admin\EventController::class, 'pending']);
-    Route::post('/events/{id}/verify', [\App\Http\Controllers\Api\Admin\EventController::class, 'verify']);
-    Route::post('/events/{id}/reject', [\App\Http\Controllers\Api\Admin\EventController::class, 'reject']);
+        // ✅ EVENT VERIFICATION (ADMIN)
+        Route::get('/events/pending', [AdminEventController::class, 'pending']);
+        Route::post('/events/{id}/verify', [AdminEventController::class, 'verify']);
+        Route::post('/events/{id}/reject', [AdminEventController::class, 'reject']);
 
-    // Transaksi
-    Route::get('/transactions', [\App\Http\Controllers\Api\Admin\AdminTransaksiController::class, 'index']);
-    Route::put('/transactions/{id}', [\App\Http\Controllers\Api\Admin\AdminTransaksiController::class, 'updateStatus']);
-    Route::delete('/transactions/{id}', [\App\Http\Controllers\Api\Admin\AdminTransaksiController::class, 'destroy']);
+        // Transaksi
+        Route::get('/transactions', [AdminTransaksiController::class, 'index']);
+        Route::put('/transactions/{id}', [AdminTransaksiController::class, 'updateStatus']);
+        Route::delete('/transactions/{id}', [AdminTransaksiController::class, 'destroy']);
 
-    // FAQ
-    Route::get('/faqs', [\App\Http\Controllers\Api\Admin\FaqController::class, 'index']);
-    Route::post('/faqs', [\App\Http\Controllers\Api\Admin\FaqController::class, 'store']);
-    Route::put('/faqs/{id}', [\App\Http\Controllers\Api\Admin\FaqController::class, 'update']);
-    Route::delete('/faqs/{id}', [\App\Http\Controllers\Api\Admin\FaqController::class, 'destroy']);
-});
+        // FAQ
+        Route::get('/faqs', [FaqController::class, 'index']);
+        Route::post('/faqs', [FaqController::class, 'store']);
+        Route::put('/faqs/{id}', [FaqController::class, 'update']);
+        Route::delete('/faqs/{id}', [FaqController::class, 'destroy']);
+    });
+
 
 /*
 |--------------------------------------------------------------------------
 | PENYELENGGARA API
 |--------------------------------------------------------------------------
 */
+Route::post('/penyelenggara/login', [PenyelenggaraAuthController::class, 'login']);
 
-Route::middleware('penyelenggara.api')->prefix('penyelenggara')->group(function () {
+Route::middleware(['auth:sanctum'])
+    ->prefix('penyelenggara')
+    ->group(function () {
 
-    Route::get('/events', [\App\Http\Controllers\Api\Penyelenggara\EventController::class, 'index']);
-    Route::post('/events', [\App\Http\Controllers\Api\Penyelenggara\EventController::class, 'store']);
-    Route::get('/events/{id}', [\App\Http\Controllers\Api\Penyelenggara\EventController::class, 'show']);
-    Route::put('/events/{id}', [\App\Http\Controllers\Api\Penyelenggara\EventController::class, 'update']);
-    Route::delete('/events/{id}', [\App\Http\Controllers\Api\Penyelenggara\EventController::class, 'destroy']);
-});
+        Route::post('/logout', [PenyelenggaraAuthController::class, 'logout']);
+
+        Route::get('/events', [EventController::class, 'index']);
+        Route::post('/events', [EventController::class, 'store']);
+    });
+
+
 
 /*
 |--------------------------------------------------------------------------
@@ -67,19 +91,29 @@ Route::middleware('penyelenggara.api')->prefix('penyelenggara')->group(function 
 |--------------------------------------------------------------------------
 */
 
-Route::middleware('pengunjung.api')->prefix('pengunjung')->group(function () {
+// ❌ TANPA middleware (PUBLIC)
+Route::post('/pengunjung/login', [PengunjungAuthController::class, 'login']);
 
-    // Dashboard event
-    Route::get('/events', [\App\Http\Controllers\Api\Pengunjung\EventController::class, 'index']);
-    Route::get('/events/{id}', [\App\Http\Controllers\Api\Pengunjung\EventController::class, 'show']);
+// ✅ PAKAI TOKEN
+Route::middleware('auth:sanctum')
+    ->prefix('pengunjung')
+    ->group(function () {
 
-    // Wishlist
-    Route::get('/wishlist', [\App\Http\Controllers\Api\Pengunjung\WishlistController::class, 'index']);
-    Route::post('/wishlist/{eventId}', [\App\Http\Controllers\Api\Pengunjung\WishlistController::class, 'store']);
-    Route::delete('/wishlist/{id}', [\App\Http\Controllers\Api\Pengunjung\WishlistController::class, 'destroy']);
+        Route::get('/dashboard', [PengunjungAuthController::class, 'dashboard']);
+        Route::get('/history', [PengunjungAuthController::class, 'history']);
+        Route::post('/logout', [PengunjungAuthController::class, 'logout']);
 
-    // Tiket
-    Route::get('/tickets/history', [\App\Http\Controllers\Api\Pengunjung\EventController::class, 'history']);
+        // Event
+        Route::get('/events', [\App\Http\Controllers\Api\Pengunjung\EventController::class, 'index']);
+        Route::get('/events/{id}', [\App\Http\Controllers\Api\Pengunjung\EventController::class, 'show']);
+
+        // Wishlist
+        Route::get('/wishlist', [\App\Http\Controllers\Api\Pengunjung\WishlistController::class, 'index']);
+        Route::post('/wishlist/{eventId}', [\App\Http\Controllers\Api\Pengunjung\WishlistController::class, 'store']);
+        Route::delete('/wishlist/{id}', [\App\Http\Controllers\Api\Pengunjung\WishlistController::class, 'destroy']);
+
+        // Tiket
+        Route::get('/tickets/history', [\App\Http\Controllers\Api\Pengunjung\EventController::class, 'history']);
 });
 
 /*

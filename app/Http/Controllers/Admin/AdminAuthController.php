@@ -28,6 +28,7 @@ class AdminAuthController extends Controller
 
     public function dashboard()
     {
+
         $users = User::all();
         $pendingEvents = Event::where('status', 'pending')->get();
 

@@ -27,7 +27,8 @@ class EventController extends Controller
             return response()->json(['message' => 'Event tidak ditemukan'], 404);
         }
 
-        $event->status = 'verified';
+        // ✅ SESUAI ENUM DATABASE
+        $event->status = 'approved';
         $event->save();
 
         return response()->json([

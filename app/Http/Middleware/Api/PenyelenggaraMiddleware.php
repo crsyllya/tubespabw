@@ -3,19 +3,29 @@
 namespace App\Http\Middleware\Api;
 
 use Closure;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 class PenyelenggaraMiddleware
 {
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next)
     {
-        if (!Auth::guard('penyelenggara')->check()) {
+        // Ambil user dari token Sanctum
+        $user = $request->user(); // otomatis terkait dengan model Penyelenggara
+
+        // Token tidak valid / tidak dikirim
+        if (!$user) {
             return response()->json([
                 'message' => 'Unauthorized. Silakan login sebagai penyelenggara.'
             ], 401);
         }
 
+        // Cek role/tipe penyelenggara
+        if (!isset($user->role) || $user->role !== 'penyelenggara') {
+            return response()->json([
+                'message' => 'Forbidden. Hanya penyelenggara yang bisa mengakses.'
+            ], 403);
+        }
+
         return $next($request);
     }
 }
-

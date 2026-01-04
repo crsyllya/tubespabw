@@ -32,7 +32,7 @@ class EventController extends Controller
             'deskripsi' => 'required',
             'kuota' => 'required|numeric',
             'maks_pemesanan' => 'required|numeric',
-            'gambar' => 'required|image'
+            'gambar' => 'nullable|string'
         ]);
 
         if ($request->hasFile('gambar')) {

@@ -4,11 +4,14 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Laravel\Sanctum\HasApiTokens;
 
 class Penyelenggara extends Authenticatable
 {
-    use HasFactory;
+    use HasApiTokens, HasFactory;
+
     protected $table = 'penyelenggaras';
+
     protected $fillable = [
         'nama',
         'email',
@@ -21,7 +24,6 @@ class Penyelenggara extends Authenticatable
         'remember_token',
     ];
 
-    // Tambahkan default value untuk is_active
     protected $attributes = [
         'is_active' => true,
     ];

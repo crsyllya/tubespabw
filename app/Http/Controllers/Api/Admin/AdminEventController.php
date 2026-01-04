@@ -19,7 +19,7 @@ class AdminEventController extends Controller
         ], 200);
     }
 
-    // Verifikasi event
+    // Verif event
     public function verify($id)
     {
         $event = Event::find($id);
