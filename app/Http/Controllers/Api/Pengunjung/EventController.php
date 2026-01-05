@@ -8,10 +8,10 @@ use Illuminate\Http\Request;
 
 class EventController extends Controller
 {
-    // semua event yang sudah verified
+    // semua event yang sudah approved
     public function index()
     {
-        $events = Event::where('status', 'verified')->get();
+        $events = Event::where('status', 'approved')->get();
 
         return response()->json([
             'status' => true,
@@ -22,13 +22,18 @@ class EventController extends Controller
     // detail event
     public function show($id)
     {
-        $event = Event::where('status', 'verified')->find($id);
+        $event = Event::where('id', $id)
+                      ->where('status', 'approved')
+                      ->first();
 
         if (!$event) {
-            return response()->json(['message' => 'Event tidak ditemukan'], 404);
+            return response()->json([
+                'message' => 'Event tidak ditemukan'
+            ], 404);
         }
 
         return response()->json([
+            'status' => true,
             'data' => $event
         ], 200);
     }
@@ -36,13 +41,14 @@ class EventController extends Controller
     // search event
     public function search(Request $request)
     {
-        $events = Event::where('status', 'verified')
+        $events = Event::where('status', 'approved')
             ->when($request->q, function ($query) use ($request) {
                 $query->where('nama', 'like', '%'.$request->q.'%');
             })
             ->get();
 
         return response()->json([
+            'status' => true,
             'data' => $events
         ], 200);
     }
