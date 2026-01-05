@@ -52,4 +52,15 @@ class EventController extends Controller
             'data' => $events
         ], 200);
     }
+
+    // riwayat tiket pengunjung
+public function history()
+{
+    return response()->json([
+        'status' => true,
+        'message' => 'History endpoint aktif (belum diimplementasi)',
+        'data' => []
+    ], 200);
+}
+
 }
